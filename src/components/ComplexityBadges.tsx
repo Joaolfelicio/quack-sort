@@ -1,6 +1,17 @@
 import { memo } from 'react';
 import type { SortAlgorithm } from '../algorithms/types';
 
+function complexityTone(value: string): string {
+  const v = value.replace(/\s/g, '');
+  if (/^O\(1\)$/.test(v) || /^O\(logn\)$/.test(v)) {
+    return 'bg-emerald-50 text-emerald-900 ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-100 dark:ring-emerald-700/40';
+  }
+  if (/O\(n²\)|O\(n\^2\)|O\(n³\)|O\(n\^3\)/.test(v)) {
+    return 'bg-rose-50 text-rose-900 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-100 dark:ring-rose-700/40';
+  }
+  return 'bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-100 dark:ring-amber-700/40';
+}
+
 interface Props {
   algorithm: SortAlgorithm;
 }
@@ -27,19 +38,19 @@ export const ComplexityBadges = memo(function ComplexityBadges({ algorithm }: Pr
       <Badge
         label="Best"
         value={t.best}
-        tone="bg-emerald-50 text-emerald-900 ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-100 dark:ring-emerald-700/40"
+        tone={complexityTone(t.best)}
         tooltip={`Best-case time complexity: how fast this algorithm runs on the most favorable input (e.g. already sorted). ${t.best}`}
       />
       <Badge
         label="Average"
         value={t.average}
-        tone="bg-sky-50 text-sky-900 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-100 dark:ring-sky-700/40"
+        tone={complexityTone(t.average)}
         tooltip={`Average-case time complexity: expected performance on a typical random input. ${t.average}`}
       />
       <Badge
         label="Worst"
         value={t.worst}
-        tone="bg-rose-50 text-rose-900 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-100 dark:ring-rose-700/40"
+        tone={complexityTone(t.worst)}
         tooltip={`Worst-case time complexity: slowest possible performance, often on reverse-sorted input. ${t.worst}`}
       />
       <Badge
