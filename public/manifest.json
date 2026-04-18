@@ -1,0 +1,17 @@
+{
+  "name": "Quack Sort",
+  "short_name": "Quack Sort",
+  "description": "Sorting algorithms, visualized with stacks of ducks.",
+  "start_url": "/quack-sort/",
+  "display": "standalone",
+  "background_color": "#e0f2fe",
+  "theme_color": "#fbbf24",
+  "icons": [
+    {
+      "src": "/quack-sort/duck.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
