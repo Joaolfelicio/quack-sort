@@ -6,8 +6,6 @@
 ## 🚀 Live Demo
 **Play now:** [https://joaolfelicio.github.io/quack-sort/](https://joaolfelicio.github.io/quack-sort/)
 
-**Report Bugs:** [https://github.com/Joaolfelicio/quack-sort/issues](https://github.com/Joaolfelicio/quack-sort/issues)
-
 Sorting algorithms, visualized with stacks of ducks. 
 
 Each column is an item; its value is the number of ducks in the stack. Watch short stacks shuffle to the left and tall stacks waddle to the right in real-time.
