@@ -149,6 +149,20 @@ export function App() {
 
           <div className="flex flex-col gap-3 rounded-3xl border border-pond-200/60 bg-white/70 p-4 shadow-soft backdrop-blur dark:border-pond-800/50 dark:bg-pond-900/50">
             <StatsBar stats={state.stats} totalSteps={state.events.length} stepIndex={state.stepIndex} />
+            <div className="flex flex-wrap gap-x-3 gap-y-1">
+              {[
+                { color: 'bg-sky-400', label: 'Compare' },
+                { color: 'bg-rose-400', label: 'Swap' },
+                { color: 'bg-amber-400', label: 'Pivot' },
+                { color: 'bg-violet-400', label: 'Write' },
+                { color: 'bg-emerald-400', label: 'Sorted' },
+              ].map(({ color, label }) => (
+                <span key={label} className="flex items-center gap-1 text-[10px] text-pond-600 dark:text-pond-300">
+                  <span className={`inline-block h-2.5 w-2.5 rounded-full ${color} opacity-80`} />
+                  {label}
+                </span>
+              ))}
+            </div>
             <div className="flex items-center justify-between gap-3">
               <Controls
                 status={state.status}
