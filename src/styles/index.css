@@ -23,6 +23,14 @@ body {
     radial-gradient(800px 500px at 110% 10%, rgba(183, 87, 6, 0.25), transparent 60%);
 }
 
+/* Pond wave animation */
+@keyframes wave-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-wave-slow  { animation: wave-drift 8s linear infinite; }
+.animate-wave-fast  { animation: wave-drift 5s linear infinite; }
+
 /* Pretty focus ring */
 :focus-visible {
   @apply outline-none ring-2 ring-pond-400 ring-offset-2 ring-offset-pond-50 dark:ring-offset-pond-950 rounded-md;
