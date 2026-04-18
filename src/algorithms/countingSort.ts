@@ -11,10 +11,12 @@ function* run(input: number[]): Generator<SortEvent> {
     yield { type: 'highlight', indices: [i], role: 'cursor' };
     counts[a[i]]++;
   }
+  yield { type: 'unhighlight' };
   let write = 0;
   for (let v = 0; v <= max; v++) {
     while (counts[v]-- > 0) {
       a[write] = v;
+      yield { type: 'highlight', indices: [write], role: 'cursor' };
       yield { type: 'overwrite', index: write, value: v };
       yield { type: 'mark-sorted', index: write };
       write++;

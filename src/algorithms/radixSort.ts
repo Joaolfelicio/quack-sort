@@ -12,10 +12,12 @@ function* run(input: number[]): Generator<SortEvent> {
       yield { type: 'highlight', indices: [i], role: 'cursor' };
       buckets[Math.floor(a[i] / exp) % 10].push(a[i]);
     }
+    yield { type: 'unhighlight' };
     let k = 0;
     for (let d = 0; d < 10; d++) {
       for (const v of buckets[d]) {
         a[k] = v;
+        yield { type: 'highlight', indices: [k], role: 'cursor' };
         yield { type: 'overwrite', index: k, value: v };
         k++;
       }

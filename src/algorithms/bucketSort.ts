@@ -13,11 +13,13 @@ function* run(input: number[]): Generator<SortEvent> {
     const idx = Math.min(bucketCount - 1, Math.floor((a[i] / (max + 1)) * bucketCount));
     buckets[idx].push(a[i]);
   }
+  yield { type: 'unhighlight' };
   let k = 0;
   for (const bucket of buckets) {
     bucket.sort((x, y) => x - y);
     for (const v of bucket) {
       a[k] = v;
+      yield { type: 'highlight', indices: [k], role: 'cursor' };
       yield { type: 'overwrite', index: k, value: v };
       yield { type: 'mark-sorted', index: k };
       k++;
