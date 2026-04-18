@@ -1,6 +1,8 @@
 let ctx: AudioContext | null = null;
 let lastPlay = 0;
 const MIN_INTERVAL_MS = 25;
+let quackBuffer: AudioBuffer | null = null;
+let quackBufferLoading = false;
 
 function getCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -21,31 +23,32 @@ function gate(): boolean {
   return true;
 }
 
+function loadQuackBuffer(c: AudioContext): void {
+  if (quackBuffer || quackBufferLoading) return;
+  quackBufferLoading = true;
+  fetch('/quack-sort/quack.wav')
+    .then((r) => r.arrayBuffer())
+    .then((ab) => c.decodeAudioData(ab))
+    .then((buf) => { quackBuffer = buf; })
+    .catch(() => { quackBufferLoading = false; });
+}
+
 export function quack(value: number, maxValue: number): void {
   if (!gate()) return;
   const c = getCtx();
   if (!c) return;
-  const t0 = c.currentTime;
-  const basePitch = 180 + (1 - value / Math.max(1, maxValue)) * 320;
-  const osc1 = c.createOscillator();
-  const osc2 = c.createOscillator();
+  loadQuackBuffer(c);
+  if (!quackBuffer) return;
+  const ratio = value / Math.max(1, maxValue);
+  // Smaller duck = higher pitch (0.8× to 1.4× playback rate)
+  const playbackRate = 0.8 + (1 - ratio) * 0.6;
+  const src = c.createBufferSource();
+  src.buffer = quackBuffer;
+  src.playbackRate.value = playbackRate;
   const gain = c.createGain();
-  osc1.type = 'sawtooth';
-  osc2.type = 'sawtooth';
-  osc1.frequency.setValueAtTime(basePitch, t0);
-  osc2.frequency.setValueAtTime(basePitch * 1.01, t0);
-  osc1.frequency.exponentialRampToValueAtTime(basePitch * 0.7, t0 + 0.09);
-  osc2.frequency.exponentialRampToValueAtTime(basePitch * 0.7 * 1.01, t0 + 0.09);
-  gain.gain.setValueAtTime(0.0001, t0);
-  gain.gain.exponentialRampToValueAtTime(0.15, t0 + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(c.destination);
-  osc1.start(t0);
-  osc2.start(t0);
-  osc1.stop(t0 + 0.13);
-  osc2.stop(t0 + 0.13);
+  gain.gain.value = 0.6;
+  src.connect(gain).connect(c.destination);
+  src.start(c.currentTime);
 }
 
 export function drip(value: number, maxValue: number): void {
