@@ -42,9 +42,9 @@ export function MobileSettingsSheet({ open, onClose, ...panelProps }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Settings"
-        className={`fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 lg:hidden dark:bg-pond-950 ${open ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`fixed inset-x-0 bottom-0 z-50 max-h-[95dvh] overflow-y-auto rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 lg:hidden dark:bg-pond-950 ${open ? 'translate-y-0' : 'translate-y-full'}`}
       >
-        <div className="sticky top-0 flex items-center justify-between border-b border-pond-100 bg-white/90 px-5 py-3 backdrop-blur dark:border-pond-800 dark:bg-pond-950/90">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-pond-100 bg-white/90 px-5 py-3 backdrop-blur dark:border-pond-800 dark:bg-pond-950/90">
           <span className="text-sm font-semibold text-pond-800 dark:text-pond-100">Settings</span>
           <button
             type="button"
