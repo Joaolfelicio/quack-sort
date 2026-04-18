@@ -57,7 +57,7 @@ export function Visualizer({ items, highlights, maxValue }: Props) {
           />
         ))}
       </div>
-      {/* Pond water surface — two layers at different speeds for parallax */}
+      {/* Pond water surface - two layers at different speeds for parallax */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-5 overflow-hidden" aria-hidden="true">
         <svg className="animate-wave-slow absolute bottom-0 h-5" style={{ width: '200%' }} viewBox="0 0 2400 40" preserveAspectRatio="none">
           <path d="M0,20 C150,8 300,32 450,20 C600,8 750,32 900,20 C1050,8 1150,28 1200,20 C1350,8 1500,32 1650,20 C1800,8 1950,32 2100,20 C2250,8 2350,28 2400,20 L2400,40 L0,40 Z" fill="rgba(125,211,252,0.35)" />

@@ -60,7 +60,7 @@ export const ComplexityBadges = memo(function ComplexityBadges({ algorithm }: Pr
         tooltip={`Space complexity: how much extra memory the algorithm needs beyond the input array. ${algorithm.complexity.space}`}
       />
       <Chip ok={algorithm.stable} tooltip="Stable sort: equal elements keep their original relative order. Important when sorting objects by multiple keys.">Stable</Chip>
-      <Chip ok={algorithm.inPlace} tooltip="In-place sort: sorts directly in the input array using only O(1) extra memory — no large auxiliary arrays needed.">In-place</Chip>
+      <Chip ok={algorithm.inPlace} tooltip="In-place sort: sorts directly in the input array using only O(1) extra memory - no large auxiliary arrays needed.">In-place</Chip>
     </div>
   );
 });
