@@ -3,7 +3,10 @@
 [![Deploy to GitHub Pages](https://github.com/Joaolfelicio/quack-sort/actions/workflows/deploy.yml/badge.svg)](https://github.com/Joaolfelicio/quack-sort/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**[Live Demo](https://joaolfelicio.github.io/quack-sort/)** • **[Report Bug](https://github.com/Joaolfelicio/quack-sort/issues)**
+## 🚀 Live Demo
+**Play now:** [https://joaolfelicio.github.io/quack-sort/](https://joaolfelicio.github.io/quack-sort/)
+
+**Report Bugs:** [https://github.com/Joaolfelicio/quack-sort/issues](https://github.com/Joaolfelicio/quack-sort/issues)
 
 Sorting algorithms, visualized with stacks of ducks. 
 
