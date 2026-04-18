@@ -72,6 +72,10 @@ function buildSnapshots(baseItems: RunnerItem[], events: SortEvent[]): StateSnap
     switch (ev.type) {
       case 'compare':
         stats.comparisons += 1;
+        for (const k2 of Object.keys(highlights)) {
+          const idx = Number(k2);
+          if (highlights[idx] === 'compare' || highlights[idx] === 'swap') delete highlights[idx];
+        }
         highlights[ev.indices[0]] = 'compare';
         highlights[ev.indices[1]] = 'compare';
         break;
@@ -79,6 +83,10 @@ function buildSnapshots(baseItems: RunnerItem[], events: SortEvent[]): StateSnap
         const [i, j] = ev.indices;
         [items[i], items[j]] = [items[j], items[i]];
         stats.swaps += 1;
+        for (const k2 of Object.keys(highlights)) {
+          const idx = Number(k2);
+          if (highlights[idx] === 'compare' || highlights[idx] === 'swap') delete highlights[idx];
+        }
         highlights[i] = 'swap';
         highlights[j] = 'swap';
         break;
@@ -95,6 +103,9 @@ function buildSnapshots(baseItems: RunnerItem[], events: SortEvent[]): StateSnap
         for (let i = 0; i < items.length; i++) highlights[i] = 'sorted';
         break;
       case 'highlight':
+        for (const k2 of Object.keys(highlights)) {
+          if (highlights[Number(k2)] === ev.role) delete highlights[Number(k2)];
+        }
         for (const idx of ev.indices) highlights[idx] = ev.role;
         break;
       case 'unhighlight':
@@ -143,6 +154,10 @@ function applyEvent(state: RunnerState, event: SortEvent, forward: boolean): Run
       if (forward) stats.comparisons += 1;
       else stats.comparisons = Math.max(0, stats.comparisons - 1);
       if (forward) {
+        for (const k of Object.keys(highlights)) {
+          const idx = Number(k);
+          if (highlights[idx] === 'compare' || highlights[idx] === 'swap') delete highlights[idx];
+        }
         highlights[i] = 'compare';
         highlights[j] = 'compare';
       } else {
@@ -156,6 +171,10 @@ function applyEvent(state: RunnerState, event: SortEvent, forward: boolean): Run
       [items[i], items[j]] = [items[j], items[i]];
       if (forward) {
         stats.swaps += 1;
+        for (const k of Object.keys(highlights)) {
+          const idx = Number(k);
+          if (highlights[idx] === 'compare' || highlights[idx] === 'swap') delete highlights[idx];
+        }
         highlights[i] = 'swap';
         highlights[j] = 'swap';
       } else {
@@ -186,8 +205,15 @@ function applyEvent(state: RunnerState, event: SortEvent, forward: boolean): Run
       }
       break;
     case 'highlight':
-      if (forward) for (const idx of event.indices) highlights[idx] = event.role;
-      else for (const idx of event.indices) if (highlights[idx] === event.role) delete highlights[idx];
+      if (forward) {
+        for (const k of Object.keys(highlights)) {
+          const idx = Number(k);
+          if (highlights[idx] === event.role) delete highlights[idx];
+        }
+        for (const idx of event.indices) highlights[idx] = event.role;
+      } else {
+        for (const idx of event.indices) if (highlights[idx] === event.role) delete highlights[idx];
+      }
       break;
     case 'unhighlight':
       if (forward) {
@@ -214,6 +240,10 @@ function recomputeFromScratch(state: RunnerState, targetIndex: number): RunnerSt
     switch (ev.type) {
       case 'compare':
         stats.comparisons += 1;
+        for (const k2 of Object.keys(highlights)) {
+          const idx = Number(k2);
+          if (highlights[idx] === 'compare' || highlights[idx] === 'swap') delete highlights[idx];
+        }
         highlights[ev.indices[0]] = 'compare';
         highlights[ev.indices[1]] = 'compare';
         break;
@@ -221,6 +251,10 @@ function recomputeFromScratch(state: RunnerState, targetIndex: number): RunnerSt
         const [i, j] = ev.indices;
         [items[i], items[j]] = [items[j], items[i]];
         stats.swaps += 1;
+        for (const k2 of Object.keys(highlights)) {
+          const idx = Number(k2);
+          if (highlights[idx] === 'compare' || highlights[idx] === 'swap') delete highlights[idx];
+        }
         highlights[i] = 'swap';
         highlights[j] = 'swap';
         break;
@@ -237,6 +271,9 @@ function recomputeFromScratch(state: RunnerState, targetIndex: number): RunnerSt
         for (let i = 0; i < items.length; i++) highlights[i] = 'sorted';
         break;
       case 'highlight':
+        for (const k2 of Object.keys(highlights)) {
+          if (highlights[Number(k2)] === ev.role) delete highlights[Number(k2)];
+        }
         for (const idx of ev.indices) highlights[idx] = ev.role;
         break;
       case 'unhighlight':
