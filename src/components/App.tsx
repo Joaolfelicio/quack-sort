@@ -103,7 +103,7 @@ export function App() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            href="https://github.com"
+            href="https://github.com/Joaolfelicio/quack-sort"
             target="_blank"
             rel="noreferrer noopener"
             className="hidden h-10 items-center gap-1 rounded-full bg-white/70 px-3 text-sm font-medium text-pond-800 shadow-soft ring-1 ring-pond-200/60 backdrop-blur hover:bg-white sm:inline-flex dark:bg-pond-800/70 dark:text-pond-100 dark:ring-pond-700/60 dark:hover:bg-pond-800"
