@@ -10,7 +10,7 @@ Sorting algorithms, visualized with stacks of ducks.
 
 Each column is an item; its value is the number of ducks in the stack. Watch short stacks shuffle to the left and tall stacks waddle to the right in real-time.
 
-![Quack Sort Dark Mode](screenshot-dark.png)
+![Quack Sort Dark Mode](public/screenshot-dark.png)
 
 ## Features
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { SortAlgorithm } from '../algorithms/types';
 import { DISTRIBUTIONS, type Distribution } from '../lib/distributions';
 import { cn } from '../lib/cn';
@@ -18,6 +18,7 @@ interface Props {
   onSoundToggle: (on: boolean) => void;
   onResetSettings: () => void;
   onCustomApply: (values: number[]) => void;
+  customValues?: number[];
 }
 
 function parseCustomInput(raw: string): { values: number[]; error: string | null } {
@@ -35,10 +36,17 @@ function parseCustomInput(raw: string): { values: number[]; error: string | null
 export function SettingsPanel({
   algorithms, algorithmId, distribution, count, speed, soundEnabled,
   onAlgorithmChange, onDistributionChange, onCountChange, onSpeedChange, onSoundToggle,
-  onResetSettings, onCustomApply,
+  onResetSettings, onCustomApply, customValues,
 }: Props) {
-  const [customInput, setCustomInput] = useState('');
+  const [customInput, setCustomInput] = useState(() => customValues?.join(', ') ?? '');
   const [customError, setCustomError] = useState<string | null>(null);
+
+  // Pre-fill input when distribution becomes custom or values change externally
+  useEffect(() => {
+    if (distribution === 'custom' && customValues) {
+      setCustomInput(customValues.join(', '));
+    }
+  }, [distribution, customValues]);
 
   function handleCustomApply() {
     const { values, error } = parseCustomInput(customInput);

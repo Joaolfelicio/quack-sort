@@ -388,15 +388,21 @@ export interface UseSortRunnerArgs {
   initialCount: number;
   initialSpeed: number;
   soundEnabled: boolean;
+  initialCustomValues?: number[];
 }
 
 function makeInitialState(args: UseSortRunnerArgs): RunnerState {
-  const raw = generate(args.initialDistribution, args.initialCount);
-  const items = raw.map((value, i) => ({ id: i, value }));
+  let items: RunnerItem[];
+  if (args.initialDistribution === 'custom' && args.initialCustomValues && args.initialCustomValues.length >= 4) {
+    items = args.initialCustomValues.map((value, i) => ({ id: i, value }));
+  } else {
+    const dist = args.initialDistribution === 'custom' ? 'random' : args.initialDistribution;
+    items = generate(dist, args.initialCount).map((value, i) => ({ id: i, value }));
+  }
   const base: RunnerState = {
     algorithmId: args.initialAlgorithmId,
     distribution: args.initialDistribution,
-    count: args.initialCount,
+    count: items.length,
     baseItems: items,
     events: [],
     snapshots: [],

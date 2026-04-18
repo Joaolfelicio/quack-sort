@@ -41,15 +41,31 @@ function readBool(key: string, fallback: boolean): boolean {
 
 const DISTS: readonly Distribution[] = ['random', 'nearly-sorted', 'reversed', 'few-unique', 'custom'] as const;
 
+function parseURLCustomValues(sp: URLSearchParams): number[] | undefined {
+  const raw = sp.get('values');
+  if (!raw) return undefined;
+  const nums = raw.split(',').map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 30);
+  return nums.length >= 4 && nums.length <= 30 ? nums : undefined;
+}
+
 export function App() {
   const { theme, toggle } = useDarkMode();
 
   const initialAlgorithmId = useMemo(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const fromUrl = sp.get('algo');
+    if (fromUrl && ALGORITHMS_BY_ID[fromUrl]) return fromUrl;
     const stored = typeof window !== 'undefined' ? localStorage.getItem(LS.algorithm) : null;
     if (stored && ALGORITHMS_BY_ID[stored]) return stored;
     return 'bubble';
   }, []);
   const initialCount = useMemo(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const fromUrl = sp.get('n');
+    if (fromUrl) {
+      const n = Math.round(Number(fromUrl));
+      if (n >= 4 && n <= 30) return n;
+    }
     const stored = localStorage.getItem(LS.count);
     if (stored) return Math.min(30, Math.max(4, Math.round(Number(stored))));
     const w = typeof window !== 'undefined' ? window.innerWidth : 1024;
@@ -57,13 +73,28 @@ export function App() {
     if (w < 1024) return 15;
     return 20;
   }, []);
-  const initialSpeed = useMemo(() => Math.min(16, Math.max(0.25, readNumber(LS.speed, 1))), []);
-  const initialDistribution = useMemo(
-    () => readString<Distribution>(LS.dist, 'random', DISTS),
-    [],
-  );
+  const initialSpeed = useMemo(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const fromUrl = sp.get('speed');
+    if (fromUrl) {
+      const n = Number(fromUrl);
+      if (Number.isFinite(n) && n >= 0.25 && n <= 16) return n;
+    }
+    return Math.min(16, Math.max(0.25, readNumber(LS.speed, 1)));
+  }, []);
+  const initialDistribution = useMemo(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const fromUrl = sp.get('dist');
+    if (fromUrl && (DISTS as readonly string[]).includes(fromUrl)) return fromUrl as Distribution;
+    return readString<Distribution>(LS.dist, 'random', DISTS);
+  }, []);
+  const initialCustomValues = useMemo(() => {
+    const sp = new URLSearchParams(window.location.search);
+    return sp.get('dist') === 'custom' ? parseURLCustomValues(sp) : undefined;
+  }, []);
   const [soundEnabled, setSoundEnabled] = useState(() => readBool(LS.sound, false));
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { state, actions, toggle: togglePlay } = useSortRunner({
     initialAlgorithmId,
@@ -71,6 +102,7 @@ export function App() {
     initialCount,
     initialSpeed,
     soundEnabled,
+    initialCustomValues,
   });
 
   const algorithm = ALGORITHMS_BY_ID[state.algorithmId];
@@ -83,12 +115,41 @@ export function App() {
     setSoundEnabled(false);
   }, [actions]);
 
+  // Handle copied state timer
+  useEffect(() => {
+    if (copied) {
+      const t = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [copied]);
+
+  const handleShare = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+  }, []);
+
   // Persist settings
   useEffect(() => { localStorage.setItem(LS.algorithm, state.algorithmId); }, [state.algorithmId]);
   useEffect(() => { localStorage.setItem(LS.count, String(state.count)); }, [state.count]);
   useEffect(() => { localStorage.setItem(LS.speed, String(state.speed)); }, [state.speed]);
   useEffect(() => { localStorage.setItem(LS.dist, state.distribution); }, [state.distribution]);
   useEffect(() => { localStorage.setItem(LS.sound, String(soundEnabled)); }, [soundEnabled]);
+
+  // Sync URL
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    sp.set('algo', state.algorithmId);
+    sp.set('n', String(state.count));
+    sp.set('speed', state.speed.toFixed(2));
+    sp.set('dist', state.distribution);
+    if (state.distribution === 'custom') {
+      sp.set('values', state.baseItems.map((i) => i.value).join(','));
+    } else {
+      sp.delete('values');
+    }
+    const newUrl = `${window.location.pathname}?${sp.toString()}`;
+    window.history.replaceState(null, '', newUrl);
+  }, [state.algorithmId, state.count, state.speed, state.distribution, state.baseItems]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -106,7 +167,7 @@ export function App() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 p-4 sm:p-6 lg:p-8">
-      <header className="flex items-center justify-between gap-4">
+      <header className="relative z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <LogoDuck />
           <div>
@@ -119,6 +180,28 @@ export function App() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label="Copy share link"
+            className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-pond-800 shadow-soft ring-1 ring-pond-200/60 backdrop-blur transition-all hover:bg-white active:scale-95 dark:bg-pond-800/70 dark:text-pond-100 dark:ring-pond-700/60 dark:hover:bg-pond-800"
+          >
+            {copied ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px] text-emerald-500">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px] transition-transform group-hover:rotate-12">
+                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+              </svg>
+            )}
+            {copied && (
+              <span className="absolute -top-10 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-pond-900 px-2 py-1 text-[10px] font-medium text-white shadow-lg dark:bg-pond-50 dark:text-pond-950">
+                Copied!
+              </span>
+            )}
+          </button>
           <a
             href="https://github.com/Joaolfelicio/quack-sort"
             target="_blank"
@@ -202,6 +285,7 @@ export function App() {
             onSoundToggle={setSoundEnabled}
             onResetSettings={handleResetSettings}
             onCustomApply={actions.setCustomItems}
+            customValues={state.baseItems.map((i) => i.value)}
           />
         </aside>
       </main>
@@ -235,6 +319,7 @@ export function App() {
         onSoundToggle={setSoundEnabled}
         onResetSettings={handleResetSettings}
         onCustomApply={actions.setCustomItems}
+        customValues={state.baseItems.map((i) => i.value)}
       />
 
       <footer className="pt-2 text-center text-xs text-pond-600 dark:text-pond-400">
