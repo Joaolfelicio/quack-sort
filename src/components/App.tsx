@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ALGORITHMS, ALGORITHMS_BY_ID } from '../algorithms';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { useSortRunner } from '../hooks/useSortRunner';
+import type { RunnerStats, RunnerStatus } from '../hooks/useSortRunner';
 import type { Distribution } from '../lib/distributions';
 import { ComplexityBadges } from './ComplexityBadges';
 import { Controls } from './Controls';
 import { MobileSettingsSheet } from './MobileSettingsSheet';
 import { SettingsPanel } from './SettingsPanel';
-import { StatsBar } from './StatsBar';
 import { ThemeToggle } from './ThemeToggle';
 import { Visualizer } from './Visualizer';
 
@@ -166,7 +166,7 @@ export function App() {
   }, [actions, togglePlay]);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 p-4 pb-20 sm:p-6 sm:pb-20 lg:p-8 lg:pb-20">
       <header className="relative z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <LogoDuck />
@@ -224,8 +224,22 @@ export function App() {
               <h2 className="text-lg font-bold text-pond-900 dark:text-pond-50">{algorithm.name}</h2>
               <p className="text-sm text-pond-700 dark:text-pond-200">{algorithm.blurb}</p>
             </div>
-            <div className="mt-3">
+            <div className="mt-3 flex flex-col gap-3">
               <ComplexityBadges algorithm={algorithm} />
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {[
+                  { color: 'bg-sky-400', label: 'Compare' },
+                  { color: 'bg-rose-400', label: 'Swap' },
+                  { color: 'bg-amber-400', label: 'Pivot' },
+                  { color: 'bg-violet-400', label: 'Write' },
+                  { color: 'bg-emerald-400', label: 'Sorted' },
+                ].map(({ color, label }) => (
+                  <span key={label} className="flex items-center gap-1.5 text-xs text-pond-600 dark:text-pond-300">
+                    <span className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${color} opacity-80`} />
+                    {label}
+                  </span>
+                ))}
+              </div>
             </div>
           </article>
 
@@ -233,41 +247,6 @@ export function App() {
             <Visualizer items={state.items} highlights={state.highlights} maxValue={state.maxValue} />
           </div>
 
-          <div className="flex flex-col gap-3 rounded-3xl border border-pond-200/60 bg-white/70 p-4 shadow-soft backdrop-blur dark:border-pond-800/50 dark:bg-pond-900/50">
-            <StatsBar stats={state.stats} totalSteps={state.events.length} stepIndex={state.stepIndex} />
-            <div className="flex flex-wrap gap-x-3 gap-y-1">
-              {[
-                { color: 'bg-sky-400', label: 'Compare' },
-                { color: 'bg-rose-400', label: 'Swap' },
-                { color: 'bg-amber-400', label: 'Pivot' },
-                { color: 'bg-violet-400', label: 'Write' },
-                { color: 'bg-emerald-400', label: 'Sorted' },
-              ].map(({ color, label }) => (
-                <span key={label} className="flex items-center gap-1 text-xs text-pond-600 dark:text-pond-300">
-                  <span className={`inline-block h-2.5 w-2.5 rounded-full ${color} opacity-80`} />
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <Controls
-                status={state.status}
-                canStepBack={state.stepIndex > 0}
-                canStepForward={state.stepIndex < state.events.length}
-                onToggle={togglePlay}
-                onStepBack={actions.stepBack}
-                onStepForward={actions.stepForward}
-                onReset={actions.reset}
-                onShuffle={actions.shuffle}
-              />
-              <p className="hidden text-xs text-pond-600 dark:text-pond-300 sm:block">
-                <kbd className="rounded bg-pond-100 px-1 py-0.5 font-mono text-[10px] dark:bg-pond-800">Space</kbd> play/pause ·{' '}
-                <kbd className="rounded bg-pond-100 px-1 py-0.5 font-mono text-[10px] dark:bg-pond-800">←/→</kbd> step ·{' '}
-                <kbd className="rounded bg-pond-100 px-1 py-0.5 font-mono text-[10px] dark:bg-pond-800">S</kbd> shuffle ·{' '}
-                <kbd className="rounded bg-pond-100 px-1 py-0.5 font-mono text-[10px] dark:bg-pond-800">R</kbd> reset
-              </p>
-            </div>
-          </div>
         </section>
 
         <aside className="hidden lg:sticky lg:top-4 lg:block lg:self-start">
@@ -321,8 +300,114 @@ export function App() {
         onCustomApply={actions.setCustomItems}
         customValues={state.baseItems.map((i) => i.value)}
       />
-    </div>
 
+      {/* Fixed controls bar — single row */}
+      <FooterBar
+        status={state.status}
+        canStepBack={state.stepIndex > 0}
+        canStepForward={state.stepIndex < state.events.length}
+        stepIndex={state.stepIndex}
+        totalSteps={state.events.length}
+        stats={state.stats}
+        onToggle={togglePlay}
+        onStepBack={actions.stepBack}
+        onStepForward={actions.stepForward}
+        onReset={actions.reset}
+        onShuffle={actions.shuffle}
+      />
+    </div>
+  );
+}
+
+function ShortcutsButton() {
+  return (
+    <div className="group relative shrink-0">
+      <button
+        type="button"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-pond-500 ring-1 ring-pond-200 transition hover:bg-white dark:bg-pond-800/70 dark:text-pond-400 dark:ring-pond-700/60 dark:hover:bg-pond-800"
+        aria-label="Show keyboard shortcuts"
+      >
+        <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <rect x="2" y="6" width="20" height="13" rx="2" /><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
+        </svg>
+      </button>
+      <div className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 w-48 rounded-xl bg-pond-900 p-3 text-xs text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 dark:bg-pond-800">
+        <p className="mb-1.5 font-semibold uppercase tracking-wide text-pond-400">Shortcuts</p>
+        <div className="space-y-1 text-pond-200">
+          <div className="flex justify-between"><span>Play / pause</span><kbd className="rounded bg-pond-700 px-1 font-mono">Space</kbd></div>
+          <div className="flex justify-between"><span>Step</span><kbd className="rounded bg-pond-700 px-1 font-mono">← →</kbd></div>
+          <div className="flex justify-between"><span>Shuffle</span><kbd className="rounded bg-pond-700 px-1 font-mono">S</kbd></div>
+          <div className="flex justify-between"><span>Reset</span><kbd className="rounded bg-pond-700 px-1 font-mono">R</kbd></div>
+        </div>
+        <div className="absolute -bottom-1.5 right-3 border-4 border-transparent border-t-pond-900 dark:border-t-pond-800" />
+      </div>
+    </div>
+  );
+}
+
+interface FooterBarProps {
+  status: RunnerStatus;
+  canStepBack: boolean;
+  canStepForward: boolean;
+  stepIndex: number;
+  totalSteps: number;
+  stats: RunnerStats;
+  onToggle: () => void;
+  onStepBack: () => void;
+  onStepForward: () => void;
+  onReset: () => void;
+  onShuffle: () => void;
+}
+
+function FooterBar({
+  status, canStepBack, canStepForward, stepIndex, totalSteps, stats,
+  onToggle, onStepBack, onStepForward, onReset, onShuffle,
+}: FooterBarProps) {
+  const pct = totalSteps ? Math.min(100, Math.floor((stepIndex / totalSteps) * 100)) : 0;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-pond-200/80 bg-white/90 px-4 py-2 shadow-lg backdrop-blur dark:border-pond-800/60 dark:bg-pond-950/90">
+      <div className="mx-auto flex max-w-7xl items-center gap-3">
+        <Controls
+          status={status}
+          canStepBack={canStepBack}
+          canStepForward={canStepForward}
+          onToggle={onToggle}
+          onStepBack={onStepBack}
+          onStepForward={onStepForward}
+          onReset={onReset}
+          onShuffle={onShuffle}
+        />
+
+        <span className="h-6 w-px shrink-0 bg-pond-200 dark:bg-pond-700" />
+
+        {/* Progress bar fills remaining space */}
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-pond-200 dark:bg-pond-800">
+            <div className="h-full rounded-full bg-duck-400 transition-[width]" style={{ width: `${pct}%` }} />
+          </div>
+          <span className="w-8 shrink-0 text-right font-mono text-xs tabular-nums text-pond-600 dark:text-pond-300">{pct}%</span>
+        </div>
+
+        <span className="hidden h-6 w-px shrink-0 bg-pond-200 dark:bg-pond-700 sm:block" />
+        <div className="hidden items-center gap-5 sm:flex">
+          <div className="flex flex-col items-start">
+            <span className="text-[10px] uppercase tracking-wide text-pond-500 dark:text-pond-400">Comparisons</span>
+            <span className="font-mono text-sm font-semibold tabular-nums text-pond-900 dark:text-pond-50">{stats.comparisons.toLocaleString()}</span>
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-[10px] uppercase tracking-wide text-pond-500 dark:text-pond-400">Swaps</span>
+            <span className="font-mono text-sm font-semibold tabular-nums text-pond-900 dark:text-pond-50">{stats.swaps.toLocaleString()}</span>
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-[10px] uppercase tracking-wide text-pond-500 dark:text-pond-400">Writes</span>
+            <span className="font-mono text-sm font-semibold tabular-nums text-pond-900 dark:text-pond-50">{stats.writes.toLocaleString()}</span>
+          </div>
+        </div>
+
+        <ShortcutsButton />
+      </div>
+    </div>
   );
 }
 

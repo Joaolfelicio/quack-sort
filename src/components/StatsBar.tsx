@@ -5,6 +5,7 @@ interface Props {
   stats: RunnerStats;
   totalSteps: number;
   stepIndex: number;
+  compact?: boolean;
 }
 
 function Stat({ label, value, tooltip }: { label: string; value: string; tooltip: string }) {
@@ -20,8 +21,27 @@ function Stat({ label, value, tooltip }: { label: string; value: string; tooltip
   );
 }
 
-export const StatsBar = memo(function StatsBar({ stats, totalSteps, stepIndex }: Props) {
+export const StatsBar = memo(function StatsBar({ stats, totalSteps, stepIndex, compact }: Props) {
   const pct = totalSteps ? Math.min(100, Math.floor((stepIndex / totalSteps) * 100)) : 0;
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="hidden items-center gap-4 sm:flex">
+          <Stat label="Comparisons" value={stats.comparisons.toLocaleString()} tooltip="Number of element comparisons." />
+          <Stat label="Swaps" value={stats.swaps.toLocaleString()} tooltip="Number of element swaps." />
+          <Stat label="Writes" value={stats.writes.toLocaleString()} tooltip="Number of array writes." />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs tabular-nums text-pond-700 dark:text-pond-200">{pct}%</span>
+          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-pond-200 dark:bg-pond-800">
+            <div className="h-full rounded-full bg-duck-400 transition-[width]" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
       <Stat label="Comparisons" value={stats.comparisons.toLocaleString()} tooltip="Number of times the algorithm compared two elements to determine their relative order." />
