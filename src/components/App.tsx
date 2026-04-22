@@ -170,13 +170,19 @@ export function App() {
       <header className="relative z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <LogoDuck />
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-pond-900 dark:text-pond-50 sm:text-3xl">
+          <div className="min-w-0">
+            <h1 className="whitespace-nowrap text-xl font-extrabold tracking-tight text-pond-900 dark:text-pond-50 sm:text-3xl">
               Quack Sort
             </h1>
-            <p className="text-xs text-pond-600 dark:text-pond-300 sm:text-sm">
+            <p className="hidden text-xs text-pond-600 dark:text-pond-300 sm:block sm:text-sm">
               Sorting algorithms, visualized with stacks of ducks.
             </p>
+            <a
+              href="https://joaolfelicio.github.io/quack-graph/"
+              className="text-xs text-pond-400 transition hover:text-pond-600 dark:text-pond-500 dark:hover:text-pond-300"
+            >
+              Also: Quack Graph →
+            </a>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -320,27 +326,35 @@ export function App() {
 }
 
 function ShortcutsButton() {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="group relative shrink-0">
+    <div className="relative shrink-0">
       <button
         type="button"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-pond-500 ring-1 ring-pond-200 transition hover:bg-white dark:bg-pond-800/70 dark:text-pond-400 dark:ring-pond-700/60 dark:hover:bg-pond-800"
+        onClick={() => setOpen(o => !o)}
         aria-label="Show keyboard shortcuts"
+        aria-expanded={open}
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-pond-500 ring-1 ring-pond-200 transition hover:bg-white dark:bg-pond-800/70 dark:text-pond-400 dark:ring-pond-700/60 dark:hover:bg-pond-800"
       >
         <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <rect x="2" y="6" width="20" height="13" rx="2" /><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
         </svg>
       </button>
-      <div className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 w-48 rounded-xl bg-pond-900 p-3 text-xs text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 dark:bg-pond-800">
-        <p className="mb-1.5 font-semibold uppercase tracking-wide text-pond-400">Shortcuts</p>
-        <div className="space-y-1 text-pond-200">
-          <div className="flex justify-between"><span>Play / pause</span><kbd className="rounded bg-pond-700 px-1 font-mono">Space</kbd></div>
-          <div className="flex justify-between"><span>Step</span><kbd className="rounded bg-pond-700 px-1 font-mono">← →</kbd></div>
-          <div className="flex justify-between"><span>Shuffle</span><kbd className="rounded bg-pond-700 px-1 font-mono">S</kbd></div>
-          <div className="flex justify-between"><span>Reset</span><kbd className="rounded bg-pond-700 px-1 font-mono">R</kbd></div>
-        </div>
-        <div className="absolute -bottom-1.5 right-3 border-4 border-transparent border-t-pond-900 dark:border-t-pond-800" />
-      </div>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute bottom-full right-0 z-50 mb-2 w-48 rounded-xl bg-pond-900 p-3 text-xs text-white shadow-xl dark:bg-pond-800">
+            <p className="mb-1.5 font-semibold uppercase tracking-wide text-pond-400">Shortcuts</p>
+            <div className="space-y-1 text-pond-200">
+              <div className="flex justify-between"><span>Play / pause</span><kbd className="rounded bg-pond-700 px-1 font-mono">Space</kbd></div>
+              <div className="flex justify-between"><span>Step</span><kbd className="rounded bg-pond-700 px-1 font-mono">← →</kbd></div>
+              <div className="flex justify-between"><span>Shuffle</span><kbd className="rounded bg-pond-700 px-1 font-mono">S</kbd></div>
+              <div className="flex justify-between"><span>Reset</span><kbd className="rounded bg-pond-700 px-1 font-mono">R</kbd></div>
+            </div>
+            <div className="absolute -bottom-1.5 right-3 border-4 border-transparent border-t-pond-900 dark:border-t-pond-800" />
+          </div>
+        </>
+      )}
     </div>
   );
 }
