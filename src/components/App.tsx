@@ -177,12 +177,11 @@ export function App() {
             <p className="hidden text-xs text-pond-600 dark:text-pond-300 sm:block sm:text-sm">
               Sorting algorithms, visualized with stacks of ducks.
             </p>
-            <a
-              href="https://joaolfelicio.github.io/quack-graph/"
-              className="text-xs text-pond-400 transition hover:text-pond-600 dark:text-pond-500 dark:hover:text-pond-300"
-            >
-              Also: Quack Graph →
-            </a>
+            <div className="flex items-center gap-2 text-xs text-pond-400 dark:text-pond-500">
+              <a href="https://joaolfelicio.github.io/quack-graph/" className="transition hover:text-pond-600 dark:hover:text-pond-300">Quack Graph</a>
+              <span>·</span>
+              <a href="https://joaolfelicio.github.io/quack-tree/" className="transition hover:text-pond-600 dark:hover:text-pond-300">Quack Tree</a>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
